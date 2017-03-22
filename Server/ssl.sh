@@ -9,20 +9,20 @@ then
 else
 	mkdir ssl
 	cd ssl
-	#Generate a private key
+	#Genera llave privada
 	echo 'Generate a private key'	
 	openssl genrsa -des3 -out app.key 1024
 
-	#Generate a CSR
+	#Generata CSR
 	echo 'Generate a CSR'
 	openssl req -new -key app.key -out app.csr
 
-	#Remove Passphrase from key
+	#Remueve passphrase de la llave
 	echo 'Remove Passphrase from key'
 	cp app.key app.key.org 
 	openssl rsa -in app.key.org -out app.key
 
-	#Generate self signed certificate
+	#Genera certificado firmado
 	echo 'Generate self signed certificate'
 	openssl x509 -req -days 365 -in app.csr -signkey app.key -out app.crt
 
