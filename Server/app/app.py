@@ -10,7 +10,7 @@ from os.path import expanduser
 KEY = 'LOL' + '8df639b301a1e10c36cc2f03bbdf8863'
 
 
-
+#argumentos
 class ParseArgs:
     def __init__(self):
         self.parser = argparse.ArgumentParser(description='ACTION')
@@ -21,7 +21,7 @@ class ParseArgs:
         self.parser.add_argument('--packages', dest='packages', action='store_true', default=False,
                                  help='Obtiene las apps instaladas')
         self.parser.add_argument('--mac', dest='mac', action='store_true', default=False,
-                                 help='Obitene mac')
+                                 help='Obtiene mac')
         self.parser.add_argument('--sendsms', dest='sendsms', action='store', metavar=('PhoneNumber', 'Message'),
                                  nargs=2, default=False,
                                  help='Envia SMS')
@@ -131,7 +131,7 @@ def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     return s.getsockname()[0]
-
+#para https
 def main():
     args = ParseArgs().getargs()
     if args.ssl and os.path.isfile(args.ssl[0] + '/app.crt') and os.path.isfile(args.ssl[0] + '/app.key'):
