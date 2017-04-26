@@ -45,13 +45,8 @@ public class ConnectionServerTask extends AsyncTask<Integer, Integer, Integer> {
 
     public ConnectionServerTask(Context context) {
         this.context = context;
-        /*this.KEY = SALT + context.getResources().getString(R.string.KEY);
-        this.host = context.getResources().getString(R.string.HOST);
-        this.port = context.getResources().getString(R.string.PORT);
-        this.timeon = Integer.valueOf(context.getResources().getString(R.string.TIMEON));
-        this.timeoff = Integer.valueOf(context.getResources().getString(R.string.TIMEOFF));*/
         this.KEY = SALT + "8df639b301a1e10c36cc2f03bbdf8863";
-        this.host = "192.168.100.26";
+        this.host = "192.168.1.138";
         this.port = "443";
         this.timeon = 4000;
         this.timeoff = 54000;

