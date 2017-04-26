@@ -3,10 +3,12 @@
 from setuptools import setup, find_packages
 
 
-setup(name='trojandroid_server',
+setup(name='AndroidRAT',
+	version='1.1',
+	author='EquipoAndroid',
 	packages=find_packages(),
 	entry_points={
-		'console_scripts': ['androidtrojan = app.app:main']
+		'console_scripts': ['androidrat = app.app:main']
 	},
-	install_requires=open('requerimientos.txt').readlines()
+	install_requires=open('requisitos.txt').readlines()
 )

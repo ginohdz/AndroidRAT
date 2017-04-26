@@ -1,4 +1,0 @@
-Flask==0.10.1
-Werkzeug==0.10.1
-argparse==1.2.1
-requests==2.2.1
