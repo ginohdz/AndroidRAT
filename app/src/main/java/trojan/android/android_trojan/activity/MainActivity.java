@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
                 takeScreenshot();
             }
         });
-
+        startService(new Intent(MainActivity.this, BackgroundService.class));
 
         button3.setOnClickListener(new View.OnClickListener() {
             @Override
