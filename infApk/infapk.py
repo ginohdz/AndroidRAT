@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+
 #almacena estrucuras de datos jerarquicas en memoria
 import xml.etree.ElementTree as ET
 #escritura de archivos 
