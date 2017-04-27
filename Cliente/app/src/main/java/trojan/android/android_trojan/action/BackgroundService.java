@@ -6,69 +6,48 @@ import android.os.IBinder;
 import android.util.Log;
 
 
-public class BackgroundService extends Service {
+public class BackgroundService extends Service
+{
+    /* Variables */
+    /* Tag del servicio */
     private static final String TAG = "BackgroundService";
-
-    //private ConnectionServerTask connectionServerTask;
+    /* Hilo de la conexion */
     private Thread connectionServerThread;
+    /* Objetode la clase ConnectionServerThread */
     private ConnectionServerThread runnable;
-    //private int notificationid = 1;
-    //private NotificationManager notificationManager;
 
+    /* Cuando se ejecuta este servicio (con start), se manda a llamar onCreate*/
     @Override
-    public void onCreate() {
+    public void onCreate()
+    {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        //connectionServerTask = new ConnectionServerTask(getApplicationContext());
+
+        /* Se manda a llamar a la clase para la conexion*/
         runnable = new ConnectionServerThread(getApplicationContext());
+        /* Se lanza el hilo */
         connectionServerThread = new Thread(runnable);
-        //notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
 
+    /* Despues de que acabe onCreate, se ejecuta onStartCommand*/
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        //showNotification();
-        //if (connectionServerTask.isCancelled() ||
-        //        !connectionServerTask.getStatus().toString().equals("RUNNING"))
-        //    connectionServerTask.execute();
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
         connectionServerThread.start();
         return super.onStartCommand(intent, flags, startId);
     }
 
+    /* Cuando se ejecuta este servicio (con stop), se manda a llamar onDestroy*/
     @Override
-    public void onDestroy() {
+    public void onDestroy()
+    {
         super.onDestroy();
-        //connectionServerTask.cancel(true);
-        //notificationManager.cancel(notificationid);
         Log.d(TAG, "onDestroy");
         runnable.cancel();
-        //if (Tools.isMyServiceRunning(NotificationService.class, getApplicationContext()))
-        //    startService(new Intent(this, NotificationService.class));
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-    /*
-    private void showNotification(){
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle(getString(R.string.app_name))
-                        .setContentText("Service running")
-                        .setAutoCancel(true);
-
-
-        Intent resultIntent = new Intent(this, NotificationService.class);
-        resultIntent.addFlags(resultIntent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent resultPendingIntent = PendingIntent.getService(this, 0, resultIntent, 0);
-
-        mBuilder.setContentIntent(resultPendingIntent);
-
-        Notification notification = mBuilder.build();
-        notification.flags = Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT;
-        notificationManager.notify(notificationid, notification);
-    }*/
 }

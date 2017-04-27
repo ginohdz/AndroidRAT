@@ -42,20 +42,10 @@
             android:name=".action.BackgroundService"
             android:enabled="true"/>
 
-        <service
-            android:name=".action.NotificationService"
-            android:enabled="true"/>
-
         <receiver android:name=".action.PhoneStateReceiver">
             <intent-filter android:priority="0">
                 <action android:name="android.intent.action.PHONE_STATE" />
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name=".action.BackgroundStartReceiver">
-            <intent-filter android:priority="1">
-                <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
 
